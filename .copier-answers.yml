@@ -1,0 +1,12 @@
+description: AI Agent for personalized pension planning, offering savings projections,
+  retirement income analysis, and contribution optimization for long-term financial
+  security.
+gh_create: gh repo create VanekPetr/pension-planning-agent --public --description
+  'AI Agent for personalized pension planning, offering savings projections, retirement
+  income analysis, and contribution optimization for long-term financial security.'
+page: https://VanekPetr.github.io/pension-planning-agent
+project_name: pension-planning-agent
+repository: https://github.com/VanekPetr/pension-planning-agent
+ssh_uri: git@github.com:VanekPetr/pension-planning-agent.git
+status: public
+username: VanekPetr
