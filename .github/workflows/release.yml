@@ -1,50 +1,22 @@
-name: Bump version and publish
-
+name: Bump version
 on:
-  workflow_dispatch:
-  workflow_run:
-    workflows: [ "CI" ]
-    types: [ completed ]
+  push:
+    branches:
+      - main
 
 jobs:
-  tag:
-    permissions:
-      contents: write
-
-    if: >
-      github.event_name == 'workflow_dispatch' ||
-      (github.event.workflow_run.conclusion == 'success' &&
-       github.event.workflow_run.head_branch == 'main')
-
+  build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout [${{ github.repository }}]
-        uses: actions/checkout@v4
-
-      - name: Generate Tag
-        uses: cvxgrp/.github/actions/uv/tag@v2.0.10
+      - uses: actions/checkout@v4
+      - name: Bump version and push tag
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v6.2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-
-  publish:
-    needs: tag
-    runs-on: ubuntu-latest
-    environment: release
-
-    permissions:
-      contents: read
-      # This permission is required for trusted publishing.
-      id-token: write
-
-    steps:
-      - name: Checkout [${{ github.repository }}]
-        uses: actions/checkout@v4
-
-      - uses: actions/download-artifact@v4
+      - name: Create a GitHub release
+        uses: ncipollo/release-action@v1
         with:
-          name: dist
-          path: dist
-
-      - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+          tag: ${{ steps.tag_version.outputs.new_tag }}
+          name: Release ${{ steps.tag_version.outputs.new_tag }}
+          body: ${{ steps.tag_version.outputs.changelog }}

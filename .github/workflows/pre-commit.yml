@@ -16,7 +16,7 @@ jobs:
 
       - uses: cvxgrp/.github/actions/uv/coverage@main
         with:
-          source-folder: src/pension-planning-agent
+          source-folder: src/pension_planning_agent
           tests-folder: src/tests
 
       - name: Coveralls GitHub Action
@@ -34,7 +34,7 @@ jobs:
 
       - uses: cvxgrp/.github/actions/uv/deptry@main
         with:
-          source-folder: src/pension-planning-agent
+          source-folder: src/pension_planning_agent
 
   pre-commit:
     runs-on: ubuntu-latest
