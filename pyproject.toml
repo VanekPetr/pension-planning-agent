@@ -13,6 +13,7 @@ repository = "https://github.com/VanekPetr/pension-planning-agent"
 
 [dependency-groups]
 dev = [
+    "pytest>=8.3.4",
 ]
 
 [tool.ruff]
