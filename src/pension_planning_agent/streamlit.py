@@ -1,18 +1,17 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Literal, TypedDict
-
 import logfire
 import streamlit as st
+from typing import Literal, TypedDict
 from pydantic_ai.messages import (
     ModelRequest,
     ModelResponse,
     TextPart,
     UserPromptPart,
 )
-
 from pension_planning_agent.agent import agent
+from loguru import logger
 
 # Configure logfire to suppress warnings (optional)
 logfire.configure(send_to_logfire="never")
@@ -86,6 +85,7 @@ async def run_agent_with_streaming(user_input: str):
                 ModelResponse(parts=[TextPart(content=partial_text)])
             )
     except Exception as e:
+        logger.error(f"⛔️ An error occurred: {e}")
         st.error(f"An error occurred: {e}")
         st.session_state.messages.append(
             ModelResponse(parts=[TextPart(content=f"An error occurred: {e}")])

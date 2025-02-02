@@ -6,15 +6,11 @@ authors = [{name='Petr Vanek', email= 'petrr.vanekk@gmail.com'}]
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "fastapi>=0.115.7",
     "logfire>=3.4.0",
     "loguru>=0.7.3",
     "pydantic-ai>=0.0.20",
     "pydantic-settings>=2.7.1",
     "streamlit>=1.41.1",
-    "supabase>=2.12.0",
-    "toml>=0.10.2",
-    "uvicorn>=0.34.0",
 ]
 
 [project.urls]
@@ -22,6 +18,7 @@ repository = "https://github.com/VanekPetr/pension-planning-agent"
 
 [dependency-groups]
 dev = [
+    "pre-commit>=4.1.0",
     "pytest>=8.3.4",
 ]
 
@@ -51,3 +48,7 @@ include = [
 
 [tool.bandit]
 exclude_dirs = ["tests"]
+
+[tool.deptry.per_rule_ignores]
+DEP001 = ["settings", "pension_planning_agent"]
+DEP002 = ["pydantic-settings"]
