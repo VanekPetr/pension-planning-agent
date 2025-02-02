@@ -7,7 +7,7 @@ load_dotenv()
 class Settings(BaseSettings):
     NAME: str = "Pension Planning Agent"
     OPEN_ROUTER_API_KEY: str = "open-key"
-    LLM_MODEL: str = "google/gemini-2.0-flash-exp:free"
+    LLM_MODEL: str = "google/gemini-flash-1.5-8b"
 
 
 settings = Settings()
