@@ -11,7 +11,9 @@ from pension_planning_agent.streamlit import (
 
 async def main():
     st.title("Pension Planning Assistant")
-    st.write("Let me help you plan for retirement!")
+    st.write(
+        "Let me help you plan for retirement! Let's start providing your name and age below."
+    )
 
     # Initialize chat history in session state if not present
     if "messages" not in st.session_state:
@@ -26,7 +28,7 @@ async def main():
                 display_message_part(part)
 
     # Chat input for the user
-    user_input = st.chat_input("Please let us know you name and you age.")
+    user_input = st.chat_input("Please write here.")
 
     if user_input:
         # We append a new request to the conversation explicitly
