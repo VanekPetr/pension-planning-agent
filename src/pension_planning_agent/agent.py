@@ -55,7 +55,7 @@ async def fire_calculator(
     udbytte_skat_percentage = await convert_percentage_to_float(udbytte_skat_percentage)
     nettoafkast = await convert_percentage_to_float(nettoafkast)
 
-    async with httpx.AsyncClient(timeout=60) as client:
+    async with httpx.AsyncClient(timeout=10) as client:
         response = await client.post(
             "https://api.businesslogic.online/execute",
             headers={
