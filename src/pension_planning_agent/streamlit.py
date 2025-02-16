@@ -4,7 +4,7 @@ import logfire
 import streamlit as st
 from typing import Literal, TypedDict
 from pydantic_ai.messages import ModelResponse, TextPart
-from pension_planning_agent.agent import agent
+from pension_planning_agent.agent import fire_agent
 from loguru import logger
 
 # Configure logfire to suppress warnings (optional)
@@ -47,7 +47,7 @@ async def run_agent_with_streaming(user_input: str):
 
     # Run the agent in a stream
     try:
-        async with agent.run_stream(
+        async with fire_agent.run_stream(
             user_input,
             message_history=st.session_state.messages[
                 :-1
