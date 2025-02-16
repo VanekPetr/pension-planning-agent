@@ -5,7 +5,7 @@ import streamlit as st
 from pydantic_ai.messages import ModelRequest, ModelResponse, UserPromptPart
 from pension_planning_agent.streamlit import (
     display_message_part,
-    run_agent_with_streaming,
+    run_agent,
 )
 
 
@@ -63,7 +63,7 @@ async def main():
         # Display the assistant's partial response while streaming
         with st.chat_message("assistant"):
             # Actually run the agent now, streaming the text
-            await run_agent_with_streaming(user_input)
+            await run_agent(user_input)
 
 
 if __name__ == "__main__":

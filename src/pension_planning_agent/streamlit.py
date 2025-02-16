@@ -39,48 +39,22 @@ def display_message_part(part):
             st.markdown(part.content)
 
 
-async def run_agent_with_streaming(user_input: str):
+async def run_agent(user_input: str):
     """
-    Run the agent with streaming text for the user_input prompt,
+    Run the agent without streaming text for the user_input prompt,
     while maintaining the entire conversation in `st.session_state.messages`.
     """
 
-    # Run the agent in a stream
     try:
-        async with fire_agent.run_stream(
-            user_input,
-            message_history=st.session_state.messages[
-                :-1
-            ],  # pass entire conversation so far
-        ) as result:
-            # We'll gather partial text to show incrementally
-            partial_text = ""
-            message_placeholder = st.empty()
+        result = await fire_agent.run(
+            user_input, message_history=st.session_state.messages[:-1]
+        )
 
-            # Render partial text as it arrives
-            async for chunk in result.stream_text(delta=True):
-                partial_text += chunk
-                message_placeholder.markdown(partial_text)
+        st.session_state.messages.append(
+            ModelResponse(parts=[TextPart(content=result.data)])
+        )
+        st.markdown(result.data)
 
-            # Now that the stream is finished, we have a final result.
-            # Add new messages from this run, excluding user-prompt messages
-            filtered_messages = [
-                msg
-                for msg in result.new_messages()
-                if not (
-                    hasattr(msg, "parts")
-                    and any(part.part_kind == "user-prompt" for part in msg.parts)
-                )
-            ]
-            st.session_state.messages.extend(filtered_messages)
-
-            # Add the final response to the messages
-            st.session_state.messages.append(
-                ModelResponse(parts=[TextPart(content=partial_text)])
-            )
     except Exception as e:
         logger.error(f"⛔️ An error occurred: {e}")
         st.error(f"An error occurred: {e}")
-        st.session_state.messages.append(
-            ModelResponse(parts=[TextPart(content=f"An error occurred: {e}")])
-        )

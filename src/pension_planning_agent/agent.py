@@ -4,7 +4,7 @@ import streamlit as st
 from pydantic_ai import Agent, RunContext
 from pydantic_ai.models.openai import OpenAIModel
 
-from pension_planning_agent.system_prompt import system_prompt
+from pension_planning_agent.system_prompt import system_prompt, final_message
 from settings import settings
 
 
@@ -19,8 +19,6 @@ model = OpenAIModel(
     ),
 )
 
-fire_agent = Agent(model=model, system_prompt=system_prompt, retries=2)
-
 
 async def convert_percentage_to_float(percentage: float) -> float:
     """
@@ -29,9 +27,7 @@ async def convert_percentage_to_float(percentage: float) -> float:
     return percentage / 100 if percentage > 1 else percentage
 
 
-@fire_agent.tool
 async def fire_calculator(
-    ctx: RunContext,
     manedslon: float,
     alder: int,
     udbytte_ar: float,
@@ -47,7 +43,7 @@ async def fire_calculator(
     folkepensionsalder: int,
     fire_alder: int,
     folkepension: float,
-) -> dict:
+) -> (dict, str):
     """
     Call the BusinessLogic API to calculate the pension plan.
     """
@@ -80,17 +76,28 @@ async def fire_calculator(
                 "folkepension": folkepension,
             },
         )
-        return response.json()
+        return response.json(), final_message
+
+
+fire_agent = Agent(
+    model=model, system_prompt=system_prompt, retries=2, tools=[fire_calculator]
+)
+
+
+async def main():
+    text_1 = """"
+            Jeg hedder Carina, er 44 år. Jeg arbejder i Penly med marketing, kundeservice, og alt muligt andet. Min bruttoløn plus min arbejdsgiverpension er 45.000 kr. om måneden. Jeg betaler 10% til pension.
+            Jeg får cirka 25.000 kr. udbetalt hver måned efter skat og indbetaling til pensioner. Og jeg sætter pt 0 kr til side.
+            Men jeg kan godt sætte 3.000 kr. til side hver måned. Jeg kan godt leve med 22.000 kr. om måneden. Og vil gerne kunne stoppe eller gå ned i tid some 60 årig.
+
+            PLEASE REPLY IN ENGLISH.
+        """
+    text_2 = "manedslon=75700, alder=52, udbytte_ar=0, overskud_ar=0, pensionInd_ar=85000, skat_percentage=33, udbytte_skat_percentage=27, forbrugsmal_md=34100, frie_midler=935000, holding_midler=0, rate_and_liv=4190000, nettoafkast=3.5, folkepensionsalder=70, fire_alder=62, folkepension=86000"
+    result = await fire_agent.run(text_2)
+    print(result.data)
 
 
 if __name__ == "__main__":
-    text_1 = """"
-        Jeg hedder Carina, er 44 år. Jeg arbejder i Penly med marketing, kundeservice, og alt muligt andet. Min bruttoløn plus min arbejdsgiverpension er 45.000 kr. om måneden. Jeg betaler 10% til pension.
-        Jeg får cirka 25.000 kr. udbetalt hver måned efter skat og indbetaling til pensioner. Og jeg sætter pt 0 kr til side.
-        Men jeg kan godt sætte 3.000 kr. til side hver måned. Jeg kan godt leve med 22.000 kr. om måneden. Og vil gerne kunne stoppe eller gå ned i tid some 60 årig.
+    import asyncio
 
-        PLEASE REPLY IN ENGLISH.
-    """
-    text_2 = "manedslon=75700, alder=52, udbytte_ar=0, overskud_ar=0, pensionInd_ar=85000, skat_percentage=33, udbytte_skat_percentage=27, forbrugsmal_md=34100, frie_midler=935000, holding_midler=0, rate_and_liv=4190000, nettoafkast=3.5, folkepensionsalder=70, fire_alder=62, folkepension=86000"
-    result = fire_agent.run_sync(text_2)
-    print(result.data)
+    asyncio.run(main())
