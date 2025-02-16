@@ -53,8 +53,9 @@ async def run_agent(user_input: str):
         st.session_state.messages.append(
             ModelResponse(parts=[TextPart(content=result.data)])
         )
-        st.markdown(result.data)
+        st.markdown(result.data if result.data else "No response from the agent.")
 
     except Exception as e:
         logger.error(f"⛔️ An error occurred: {e}")
         st.error(f"An error occurred: {e}")
+        st.markdown("Error in the agent.")
