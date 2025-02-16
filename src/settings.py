@@ -8,7 +8,9 @@ class Settings(BaseSettings):
     NAME: str = "Pension Planning Agent"
     OPEN_ROUTER_API_KEY: str = "open-key"
     LLM_MODEL: str = "google/gemini-2.0-flash-001"
-    BUSINESSLOGIC_TOKEN: str = "businesslogic-token"
+    BUSINESSLOGIC_TOKEN: str = (
+        "businesslogic-token"  # Please contact petrr.vanekk@gmail.com for the token
+    )
 
 
 settings = Settings()
