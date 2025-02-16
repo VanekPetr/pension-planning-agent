@@ -10,9 +10,29 @@ from pension_planning_agent.streamlit import (
 
 
 async def main():
-    st.title("Pension Planning Assistant")
+    st.title("🔥 FIRE Agent")
     st.write(
-        "Let me help you plan for retirement! Let's start providing your name and age below."
+        """
+        Hej, jeg er en AI-agent, udviklet af [Penly](https://penly.dk), til at hjælpe dig med at få afklaring over hvornår du kan stoppe med at arbejde, eller gå ned i tid, mens du fortsat opretholder dit nuværende forbrugsniveau, eller eventuel gå op eller ned i forbrug.
+        Du kan primært bruge mig til at find ud af, hvor meget du skal spare op, for at nå din såkaldte FIRE-mål.
+
+        *FIRE står for Financial Independence Retire Early. Når vi taler om FIRE-planlægning i Penly, tænker vi på, hvordan vi kan få vores indtægter, opsparing og forbrug til at gå op i en højere enhed, over vores levetid, så vi kan leve det liv, vi ønsker.
+
+        Mine beregninger er baseret på nogle simple forudsætninger. Grundlæggende vil jeg holde det helt simpelt i første omgang, men stadig realistisk i hele træskolængder. Du kan altid bygge videre på det, evt sammen med en rådgiver, hvis du vil gemme vores dialog og mine beregninger med bagvedliggende  forudsætninger, så du kan fortsætte med det senere. Men lad os komme i gang med din, muligvis, første FIRE-plan 🔥
+
+        Det tager cirka 2 minutter at besvare mine spørgsmål, hvis du kender de begreber jeg bruger, og dine økonomiske tal. Hvis ikke du kender begreberne eller hvis du er i tvivl om det mindste, kan du bare spørge, og jeg skal nok forklare det i detaljer, med eksempler og det hele.
+
+        Lad os komme i gang.
+        Kan jeg få dig til fortælle lidt om dine FIRE tanker først?
+
+        *Du må gerne skrive noget a la det Carina fra Penly har skrevet:*
+
+        *Jeg hedder Carina, er 44 år. Jeg arbejder i Penly med marketing, kundeservice, og alt muligt andet. Min bruttoløn plus min arbejdsgiverpension er 45.000 kr. om måneden. Jeg betaler 10% til pension.
+        Jeg får cirka 25.000 kr. udbetalt hver måned efter skat og indbetaling til pensioner. Og jeg sætter pt 0 kr til side.
+        Men jeg kan godt sætte 3.000 kr. til side hver måned. Jeg kan godt leve med 22.000 kr. om måneden. Og vil gerne kunne stoppe eller gå ned i tid some 60 årig.*
+
+        **Nu er det din tur:**
+        """
     )
 
     # Initialize chat history in session state if not present
