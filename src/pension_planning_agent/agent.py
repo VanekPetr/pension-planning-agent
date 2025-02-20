@@ -4,7 +4,7 @@ import streamlit as st
 from pydantic_ai import Agent, RunContext
 from pydantic_ai.models.openai import OpenAIModel
 
-from pension_planning_agent.system_prompt import system_prompt, final_message
+from pension_planning_agent.system_prompt import system_prompt
 from settings import settings
 
 
@@ -27,31 +27,43 @@ async def convert_percentage_to_float(percentage: float) -> float:
     return percentage / 100 if percentage > 1 else percentage
 
 
+def generate_final_message(response: dict) -> str:
+    if response:
+        return f"""
+            Hvis du sparer {response["opsparing_ar"]} kr. om året i løbet af dine arbejdsår, vil din nettofortjeneste i frie midler ved din alder 95 være {response["result"]} kr.
+
+            Hvis beløbet er positivt, er du på rette vej. Hvis det er negativt, skal du enten spare mere op eller reducere dit forventede forbrug.
+
+            Vil du gerne gemme dine oplysninger, så du kan ændre på forudsætninger og lave flere beregninger? Det kræver, at du opretter en gratis Penly profil eller logge ind med din Penly profil, hvis du allerede har en Penly profil.
+            - [Opret Profil](https://penly.dk/opret?)
+            - [Log ind - hvis du har en profil](https://auth.neway.dk/realms/neway/protocol/openid-connect/auth?client_id=penly-frontend&redirect_uri=https%3A%2F%2Fpenly.dk%2F%2Fmit-penly%2Fpension&state=e8043e15-e8cc-499d-a1c3-514b26c39c8d&response_mode=fragment&response_type=code&scope=openid&nonce=24c54004-277b-4db4-8c96-98aa0d7e6aee)
+
+            Vil du fortsætte dialogen med en Penly rådgiver, kan du booke en gratis 15-minutters møde [her](https://penly.dk/opret?):
+            Ved mødet kan du også få en EXCEL-fil, hvor du selv kan lege videre og præcisere din FIRE-plan.
+            Rådgiveren vil også kunne fortælle dig, hvis der er ting, du bør overveje for at optimere din op- og nedsparingsplan.
+        """
+    else:
+        return "Agenten kunne ikke finde nogle informationer."
+
+
 async def fire_calculator(
     manedslon: float,
     alder: int,
-    udbytte_ar: float,
-    overskud_ar: float,
     pensionInd_ar: float,
     skat_percentage: float,
-    udbytte_skat_percentage: float,
     forbrugsmal_md: float,
     frie_midler: float,
     holding_midler: float,
     rate_and_liv: float,
-    nettoafkast: float,
-    folkepensionsalder: int,
     fire_alder: int,
-    folkepension: float,
-) -> (dict, str):
+) -> str:
     """
     Call the BusinessLogic API to calculate the pension plan.
     """
     skat_percentage = await convert_percentage_to_float(skat_percentage)
-    udbytte_skat_percentage = await convert_percentage_to_float(udbytte_skat_percentage)
-    nettoafkast = await convert_percentage_to_float(nettoafkast)
+    folkepensionsalder = 70  # TODO calculate this
 
-    async with httpx.AsyncClient(timeout=10) as client:
+    async with httpx.AsyncClient(timeout=15) as client:
         response = await client.post(
             "https://api.businesslogic.online/execute",
             headers={
@@ -61,22 +73,18 @@ async def fire_calculator(
             json={
                 "manedslon": manedslon,
                 "alder": alder,
-                "udbytte_ar": udbytte_ar,
-                "overskud_ar": overskud_ar,
                 "pensionInd_ar": pensionInd_ar,
                 "skat_percentage": skat_percentage,
-                "udbytte_skat_percentage": udbytte_skat_percentage,
                 "forbrugsmal_md": forbrugsmal_md,
                 "frie_midler": frie_midler,
                 "holding_midler": holding_midler,
                 "rate_and_liv": rate_and_liv,
-                "nettoafkast": nettoafkast,
                 "folkepensionsalder": folkepensionsalder,
                 "fire_alder": fire_alder,
-                "folkepension": folkepension,
             },
         )
-        return response.json(), final_message
+
+        return generate_final_message(response.json())
 
 
 fire_agent = Agent(
@@ -92,7 +100,7 @@ async def main():
 
             PLEASE REPLY IN ENGLISH.
         """
-    text_2 = "manedslon=75700, alder=52, udbytte_ar=0, overskud_ar=0, pensionInd_ar=85000, skat_percentage=33, udbytte_skat_percentage=27, forbrugsmal_md=34100, frie_midler=935000, holding_midler=0, rate_and_liv=4190000, nettoafkast=3.5, folkepensionsalder=70, fire_alder=62, folkepension=86000"
+    text_2 = "manedslon=75700, alder=52, pensionInd_ar=85000, skat_percentage=33, forbrugsmal_md=34100, frie_midler=935000, holding_midler=0, rate_and_liv=4190000,fire_alder=62"
     result = await fire_agent.run(text_2)
     print(result.data)
 
