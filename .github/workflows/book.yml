@@ -13,12 +13,12 @@ jobs:
   pdoc:
     runs-on: "ubuntu-latest"
     steps:
-      - name: Checkout [${{ github.repository }}]
-        uses: actions/checkout@v4
+      - name: "Build the virtual environment for ${{ github.repository }}"
+        uses: cvxgrp/.github/actions/environment@v2.2.7
 
-      - uses: cvxgrp/.github/actions/pdoc@main
+      - uses: cvxgrp/.github/actions/pdoc@v2.2.7
         with:
-          source-folder: src/pension_planning_agent
+          source-folder: 'src/pension_planning_agent'
 
   test:
     runs-on: "ubuntu-latest"
