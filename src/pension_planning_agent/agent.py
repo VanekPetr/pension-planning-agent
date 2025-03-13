@@ -1,7 +1,7 @@
 import logfire
 import httpx
 import streamlit as st
-from pydantic_ai import Agent, RunContext
+from pydantic_ai import Agent
 from pydantic_ai.models.openai import OpenAIModel
 
 from pension_planning_agent.system_prompt import system_prompt
