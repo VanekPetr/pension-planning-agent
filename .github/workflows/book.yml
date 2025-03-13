@@ -16,7 +16,7 @@ jobs:
       - name: Checkout [${{ github.repository }}]
         uses: actions/checkout@v4
 
-      - uses: cvxgrp/.github/actions/uv/pdoc@main
+      - uses: cvxgrp/.github/actions/pdoc@main
         with:
           source-folder: src/pension_planning_agent
 
@@ -26,7 +26,7 @@ jobs:
       - name: Checkout [${{ github.repository }}]
         uses: actions/checkout@v4
 
-      - uses: cvxgrp/.github/actions/uv/coverage@main
+      - uses: cvxgrp/.github/actions/coverage@main
         with:
           tests-folder: src/tests
           source-folder: src/pension_planning_agent
