@@ -1011,6 +1011,7 @@ name = "pension-planning-agent"
 version = "0.0.0"
 source = { editable = "." }
 dependencies = [
+    { name = "httpx" },
     { name = "logfire" },
     { name = "loguru" },
     { name = "pydantic-ai" },
@@ -1026,6 +1027,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "httpx", specifier = ">=0.28.1" },
     { name = "logfire", specifier = ">=3.4.0" },
     { name = "loguru", specifier = ">=0.7.3" },
     { name = "pydantic-ai", specifier = ">=0.0.20" },
