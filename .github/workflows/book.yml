@@ -14,9 +14,9 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
       - name: "Build the virtual environment for ${{ github.repository }}"
-        uses: cvxgrp/.github/actions/environment@v2.2.7
+        uses: cvxgrp/.github/actions/environment@v2.2.8
 
-      - uses: cvxgrp/.github/actions/pdoc@v2.2.7
+      - uses: cvxgrp/.github/actions/pdoc@v2.2.8
         with:
           source-folder: 'src/pension_planning_agent'
 
