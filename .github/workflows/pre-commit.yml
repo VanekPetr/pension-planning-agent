@@ -14,27 +14,28 @@ jobs:
       - name: Checkout [${{ github.repository }}]
         uses: actions/checkout@v4
 
-      - uses: cvxgrp/.github/actions/coverage@main
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
-          source-folder: src/pension_planning_agent
-          tests-folder: src/tests
+          python-version: '3.12'
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install dependencies
+        run: |
+          uv sync --all-extras --dev
+
+      - name: Run tests with coverage
+        run: |
+          uv run pytest src/tests/ --cov=pension_planning_agent --cov-report=lcov --cov-report=term-missing
 
       - name: Coveralls GitHub Action
         if: ${{ env.ACT != 'true' }}  # Skip if running with 'act'
         uses: coverallsapp/github-action@v2
         with:
-          files: artifacts/tests/coverage/coverage.info
+          files: coverage.lcov
           format: lcov
-
-  deptry:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout [${{ github.repository }}]
-        uses: actions/checkout@v4
-
-      - uses: cvxgrp/.github/actions/deptry@main
-        with:
-          source-folder: src/pension_planning_agent
 
   pre-commit:
     runs-on: ubuntu-latest

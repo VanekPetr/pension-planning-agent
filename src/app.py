@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import asyncio
 import streamlit as st
-from pydantic_ai.messages import ModelRequest, ModelResponse, UserPromptPart
 from pension_planning_agent.streamlit import (
     display_message_part,
     run_agent,
@@ -13,7 +12,7 @@ async def main():
     st.title("🔥 FIRE Agent")
     st.write(
         """
-        Hej, jeg er en AI-agent, udviklet af [Penly](https://penly.dk), til at hjælpe dig med at få afklaring over hvornår du kan stoppe med at arbejde, eller gå ned i tid, mens du fortsat opretholder dit nuværende forbrugsniveau, eller eventuel gå op eller ned i forbrug.
+        Hej, jeg er en AI-agent, udviklet af [Penly](https://penly.dk), til at hjælpe dig med at få afklaring over hvornår du kan stoppe med at arbejde, eller gå ned i tid, mens du fortsat opretholder dit nuværende forbrugsniveau, eller eventual gå op eller ned i forbrug.
         Du kan primært bruge mig til at find ud af, hvor meget du skal spare op, for at nå din såkaldte FIRE-mål.
 
         *FIRE står for Financial Independence Retire Early. Når vi taler om FIRE-planlægning i Penly, tænker vi på, hvordan vi kan få vores indtægter, opsparing og forbrug til at gå op i en højere enhed, over vores levetid, så vi kan leve det liv, vi ønsker.
@@ -38,29 +37,24 @@ async def main():
         st.session_state.messages = []
 
     # Display all messages from the conversation so far
-    # Each message is either a ModelRequest or ModelResponse.
-    # We iterate over their parts to decide how to display them.
+    # Each message is a dict with 'role' and 'content'
     for msg in st.session_state.messages:
-        if isinstance(msg, ModelRequest) or isinstance(msg, ModelResponse):
-            for part in msg.parts:
-                display_message_part(part)
+        display_message_part(msg)
 
     # Chat input for the user
     user_input = st.chat_input("Please write here.")
 
     if user_input:
-        # We append a new request to the conversation explicitly
-        st.session_state.messages.append(
-            ModelRequest(parts=[UserPromptPart(content=user_input)])
-        )
+        # Append user message to session state
+        st.session_state.messages.append({"role": "user", "content": user_input})
 
         # Display user prompt in the UI
         with st.chat_message("user"):
             st.markdown(user_input)
 
-        # Display the assistant's partial response while streaming
+        # Display the assistant's response
         with st.chat_message("assistant"):
-            # Actually run the agent now, streaming the text
+            # Run the agent (now async)
             await run_agent(user_input)
 
 
