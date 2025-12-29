@@ -28,7 +28,7 @@ jobs:
 
       - name: Generate pdoc documentation
         run: |
-          uv run pdoc src/pension_planning_agent -o docs/api --html
+          uv run pdoc src/pension_planning_agent -o docs/api
 
   test:
     runs-on: "ubuntu-latest"
