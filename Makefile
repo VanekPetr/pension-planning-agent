@@ -32,7 +32,7 @@ help:  ## Display this help screen
 .PHONY: marimo
 marimo: install ## Install Marimo
 	@uv pip install marimo
-	@uv run marimo edit book/marimo
+	@uv run marimo edit
 
 
 .PHONY: test

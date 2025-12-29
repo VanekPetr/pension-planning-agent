@@ -1,4 +1,4 @@
-# [pension-planning-agent](https://VanekPetr.github.io/pension-planning-agent/book)
+# pension-planning-agent
 
 [![PyPI version](https://badge.fury.io/py/pension-planning-agent.svg)](https://badge.fury.io/py/pension-planning-agent)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE.txt)
@@ -159,7 +159,6 @@ See `TESTS.md` for detailed test documentation.
 
 ```bash
 make tests   # Run test suite
-make marimo  # Start Marimo notebooks
 make fmt     # Format code and run pre-commit hooks
 uv sync      # Sync dependencies
 ```

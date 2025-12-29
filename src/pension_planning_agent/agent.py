@@ -163,7 +163,6 @@ try:
 except Exception:
     api_key = settings.OPEN_ROUTER_API_KEY
 
-print(f"API key: {api_key[:4]}")
 
 # Configure LiteLLM to use OpenRouter
 model = LiteLlm(
