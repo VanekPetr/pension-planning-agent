@@ -129,11 +129,37 @@ Adjust reasoning effort in `src/pension_planning_agent/agent.py`:
 extra_params={"reasoning_effort": "high"}  # Options: "low", "medium", "high"
 ```
 
+## Testing
+
+The project includes a comprehensive test suite with **26 tests** covering:
+
+- Input validation with edge cases
+- Error handling (API timeouts, HTTP errors)
+- Business logic (percentage conversion, message formatting)
+- Pydantic schema validation
+
+### Run Tests
+
+```bash
+make tests              # Run full test suite
+pytest src/tests/ -v    # Verbose output
+pytest --cov            # With coverage report
+```
+
+### Test Coverage
+
+- **Overall**: 48% coverage
+- **Core Agent**: 67% coverage
+- **Schemas**: 100% coverage
+
+See `TESTS.md` for detailed test documentation.
+
 ## Development Commands
 
 ```bash
 make tests   # Run test suite
 make marimo  # Start Marimo notebooks
+make fmt     # Format code and run pre-commit hooks
 uv sync      # Sync dependencies
 ```
 
@@ -144,13 +170,18 @@ pension-planning-agent/
 ├── src/
 │   ├── app.py                          # Streamlit entry point
 │   ├── settings.py                     # Configuration
-│   └── pension_planning_agent/
-│       ├── agent.py                    # ADK agent with tools
-│       ├── streamlit.py                # Streamlit helpers
-│       └── system_prompt.py            # Agent instructions
+│   ├── pension_planning_agent/
+│   │   ├── agent.py                    # ADK agent with tools
+│   │   ├── streamlit.py                # Streamlit helpers
+│   │   ├── schemas.py                  # Pydantic validation models
+│   │   └── system_prompt.py            # Agent instructions
+│   └── tests/
+│       ├── test_agent.py               # Agent function tests
+│       └── test_schemas.py             # Validation tests
 ├── .streamlit/
 │   └── secrets.toml                    # Streamlit secrets (API keys)
 ├── pyproject.toml                      # Dependencies
+├── TESTS.md                            # Test documentation
 └── README.md
 ```
 
