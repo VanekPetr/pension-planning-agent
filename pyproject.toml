@@ -59,8 +59,3 @@ exclude_dirs = ["tests"]
 testpaths = ["src/tests"]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
-addopts = [
-  "--cov=pension_planning_agent",
-  "--cov-report=term-missing",
-  "--cov-report=html",
-]

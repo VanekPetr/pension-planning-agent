@@ -143,7 +143,8 @@ The project includes a comprehensive test suite with **26 tests** covering:
 ```bash
 make tests              # Run full test suite
 pytest src/tests/ -v    # Verbose output
-pytest --cov            # With coverage report
+pytest src/tests/ --cov=pension_planning_agent \
+  --cov-report=term-missing  # With coverage
 ```
 
 ### Test Coverage

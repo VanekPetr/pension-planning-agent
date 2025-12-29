@@ -86,7 +86,7 @@ pytest src/tests/
 ### Run with coverage
 
 ```bash
-pytest src/tests/ --cov
+pytest src/tests/ --cov=pension_planning_agent --cov-report=term-missing
 ```
 
 ### Run specific test file
