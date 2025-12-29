@@ -3,8 +3,7 @@ from __future__ import annotations
 import logfire
 import streamlit as st
 from typing import Literal, TypedDict
-from pydantic_ai.messages import ModelResponse, TextPart
-from pension_planning_agent.agent import fire_agent
+from pension_planning_agent.agent import runner
 from loguru import logger
 
 # Configure logfire to suppress warnings (optional)
@@ -19,41 +18,81 @@ class ChatMessage(TypedDict):
     content: str
 
 
-def display_message_part(part):
+def display_message_part(message: dict):
     """
-    Display a single part of a message in the Streamlit UI.
-    Customize how you display system prompts, user prompts,
-    tool calls, tool returns, etc.
+    Display a single message in the Streamlit UI.
     """
-    # system-prompt
-    if part.part_kind == "system-prompt":
+    role = message.get("role", "user")
+    content = message.get("content", "")
+
+    if role == "system":
         with st.chat_message("system"):
-            st.markdown(f"**System**: {part.content}")
-    # user-prompt
-    elif part.part_kind == "user-prompt":
+            st.markdown(f"**System**: {content}")
+    elif role == "user":
         with st.chat_message("user"):
-            st.markdown(part.content)
-    # text
-    elif part.part_kind == "text":
+            st.markdown(content)
+    elif role == "assistant" or role == "model":
         with st.chat_message("assistant"):
-            st.markdown(part.content)
+            st.markdown(content)
 
 
 async def run_agent(user_input: str):
     """
-    Run the agent without streaming text for the user_input prompt,
+    Run the agent for the user_input prompt,
     while maintaining the entire conversation in `st.session_state.messages`.
     """
+    from google.genai import types
+    from pension_planning_agent.agent import session_service
 
     try:
-        result = await fire_agent.run(
-            user_input, message_history=st.session_state.messages[:-1]
-        )
+        # Get or create user ID and session ID
+        if "user_id" not in st.session_state:
+            st.session_state.user_id = "streamlit_user"
+
+        if "session_id" not in st.session_state:
+            import uuid
+
+            st.session_state.session_id = str(uuid.uuid4())
+            # Create the session (await the async method)
+            await session_service.create_session(
+                app_name="fire_pension_agent",
+                user_id=st.session_state.user_id,
+                session_id=st.session_state.session_id,
+            )
+
+        # Create user message content
+        new_message = types.Content(parts=[types.Part(text=user_input)])
+
+        # Run the agent and collect response
+        response_text = ""
+        last_event = None
+        for event in runner.run(
+            user_id=st.session_state.user_id,
+            session_id=st.session_state.session_id,
+            new_message=new_message,
+        ):
+            last_event = event
+            # Extract text from events
+            if hasattr(event, "text") and event.text:
+                response_text += event.text
+            elif hasattr(event, "content") and event.content:
+                # Handle Content object with parts
+                content = event.content
+                if hasattr(content, "parts"):
+                    for part in content.parts:
+                        if hasattr(part, "text") and part.text:
+                            response_text += part.text
+
+        # If no text was extracted, use the last event
+        if not response_text:
+            response_text = (
+                str(last_event) if last_event else "No response from the agent."
+            )
 
         st.session_state.messages.append(
-            ModelResponse(parts=[TextPart(content=result.data)])
+            {"role": "assistant", "content": response_text}
         )
-        st.markdown(result.data if result.data else "No response from the agent.")
+        st.markdown(response_text)
 
     except Exception as e:
         logger.error(f"⛔️ An error occurred: {e}")

@@ -1,23 +1,15 @@
-import logfire
 import httpx
-import streamlit as st
-from pydantic_ai import Agent
-from pydantic_ai.models.openai import OpenAIModel
+import logfire
+from google.adk import Runner
+from google.adk.agents import Agent
+from google.adk.models import LiteLlm
+from google.adk.sessions import InMemorySessionService
 
 from pension_planning_agent.system_prompt import system_prompt
 from settings import settings
 
 
 logfire.configure(send_to_logfire="if-token-present")
-model = OpenAIModel(
-    model_name=settings.LLM_MODEL,
-    base_url="https://openrouter.ai/api/v1",
-    api_key=(
-        settings.OPEN_ROUTER_API_KEY
-        if settings.OPEN_ROUTER_API_KEY != "open-key"
-        else st.secrets["OPEN_ROUTER_API_KEY"]
-    ),
-)
 
 
 async def convert_percentage_to_float(percentage: float) -> float:
@@ -59,6 +51,20 @@ async def fire_calculator(
 ) -> str:
     """
     Call the BusinessLogic API to calculate the pension plan.
+
+    Args:
+        manedslon: Monthly salary
+        alder: Current age
+        pensionInd_ar: Annual pension contributions
+        skat_percentage: Tax percentage after AMB
+        forbrugsmal_md: Monthly consumption target
+        frie_midler: Initial free funds balance
+        holding_midler: Initial holding balance
+        rate_and_liv: Rate and annuity pension
+        fire_alder: Target FIRE age
+
+    Returns:
+        str: Final message with pension plan calculation results
     """
     skat_percentage = await convert_percentage_to_float(skat_percentage)
     folkepensionsalder = 70  # TODO calculate this
@@ -87,12 +93,47 @@ async def fire_calculator(
         return generate_final_message(response.json())
 
 
+# Get API key from environment or Streamlit secrets
+try:
+    import streamlit as st
+
+    api_key = (
+        settings.OPEN_ROUTER_API_KEY
+        if settings.OPEN_ROUTER_API_KEY != "open-key"
+        else st.secrets.get("OPEN_ROUTER_API_KEY")
+    )
+except Exception:
+    api_key = settings.OPEN_ROUTER_API_KEY
+
+print(f"API key: {api_key[:4]}")
+
+# Configure LiteLLM to use OpenRouter
+model = LiteLlm(
+    model=settings.LLM_MODEL,
+    api_key=api_key,
+    api_base="https://openrouter.ai/api/v1",
+    # Optional: Add reasoning parameters for thinking models
+    extra_params={"reasoning_effort": "high"},  # For reasoning models
+)
+
 fire_agent = Agent(
-    model=model, system_prompt=system_prompt, retries=2, tools=[fire_calculator]
+    name="fire_pension_agent",
+    model=model,
+    instruction=system_prompt,
+    description="AI agent for personalized pension planning, offering savings projections, retirement income analysis, and contribution optimization.",
+    tools=[fire_calculator],
+)
+
+# Create session service and runner
+session_service = InMemorySessionService()
+runner = Runner(
+    app_name="fire_pension_agent", agent=fire_agent, session_service=session_service
 )
 
 
 async def main():
+    from google.genai import types
+
     text_1 = """"
             Jeg hedder Carina, er 44 år. Jeg arbejder i Penly med marketing, kundeservice, og alt muligt andet. Min bruttoløn plus min arbejdsgiverpension er 45.000 kr. om måneden. Jeg betaler 10% til pension.
             Jeg får cirka 25.000 kr. udbetalt hver måned efter skat og indbetaling til pensioner. Og jeg sætter pt 0 kr til side.
@@ -101,8 +142,41 @@ async def main():
             PLEASE REPLY IN ENGLISH.
         """
     text_2 = "manedslon=75700, alder=52, pensionInd_ar=85000, skat_percentage=33, forbrugsmal_md=34100, frie_midler=935000, holding_midler=0, rate_and_liv=4190000,fire_alder=62"
-    result = await fire_agent.run(text_2)
-    print(result.data)
+
+    # Create a session first (await the async method)
+    user_id = "test_user"
+    session_id = "test_session"
+    app_name = "fire_pension_agent"
+    await session_service.create_session(
+        app_name=app_name, user_id=user_id, session_id=session_id
+    )
+
+    # Create user message content
+    new_message = types.Content(parts=[types.Part(text=text_2)])
+
+    # Run the agent
+    result_text = ""
+    last_event = None
+    for event in runner.run(
+        user_id=user_id, session_id=session_id, new_message=new_message
+    ):
+        last_event = event
+        # Process events to extract the response
+        if hasattr(event, "text") and event.text:
+            result_text += event.text
+        elif hasattr(event, "content") and event.content:
+            # Handle Content object with parts
+            content = event.content
+            if hasattr(content, "parts"):
+                for part in content.parts:
+                    if hasattr(part, "text") and part.text:
+                        result_text += part.text
+
+    print(
+        result_text
+        if result_text
+        else (str(last_event) if last_event else "No response")
+    )
 
 
 if __name__ == "__main__":
